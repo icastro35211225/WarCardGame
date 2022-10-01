@@ -6,7 +6,8 @@ public class Deck {
     private final int SIZE = 36;
     private ArrayList<Card> cards;
     private final String[] suits = { "DIAMONDS", "CLUBS", "HEARTS", "SPADES" };
-    private final String[] ranks = { "ACE", "KING", "QUEEN", "JACK", "TEN", "NINE", "EIGHT", "SEVEN", "SIX" };
+    private final String[] ranks = { "ACE", "KING", "QUEEN", "JACK", "TEN", "NINE", "EIGHT", "SEVEN", "SIX", "FIVE",
+            "FOUR", "THREE", "TWO" };
 
     public Deck() {
         cards = new ArrayList<Card>();
@@ -25,8 +26,9 @@ public class Deck {
         return cards;
     }
 
-    public void shuffleDeck() {
+    public void shuffleDeck(long seed) {
         Random rand = new Random();
+        rand.setSeed(seed);
         for (int i = 0; i < SIZE; i++) {
             int randomIndex = rand.nextInt(SIZE);
             Collections.swap(cards, i, randomIndex);

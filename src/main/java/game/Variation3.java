@@ -18,12 +18,18 @@ public abstract class Variation3 implements Game {
         playerHands.add(player3Hand);
     }
 
-    public void startGame(int numOfPlayers, Deck deck, long seed) {
+    public void startGame(int numOfPlayers, long seed, int maxRounds, Deck deck) {
         initializePlayers();
-        gameProcessor.initializePlayers(numOfPlayers, playerHands);
         deck.shuffleDeck(seed);
         gameProcessor.passOutCards(numOfPlayers, deck, players);
 
-        // Find a way to tell it which variation of the game you are playing
+        int round = 1;
+        while (round <= maxRounds) {
+            // Take one card from each player, and add it to GameTable class
+            // Print out "Player <nmu> plays <RANK> of <SUIT>" for each card
+            // Call evaluate to evaluate cards on the table
+            // In evaluate, check if the cards match, if so, call war method
+            // Do it own like gameEval method
+        }
     }
 }

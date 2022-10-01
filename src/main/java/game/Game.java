@@ -17,6 +17,6 @@ public interface Game {
 
     public void initializePlayers();
 
-    public void startGame(int numOfPlayers, Deck deck, long seed);
+    public void startGame(int numOfPlayers, Deck deck, long seed, int maxRounds);
 
 }
