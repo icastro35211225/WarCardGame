@@ -4,21 +4,52 @@ import java.util.*;
 import cards.*;
 
 public class GameProcessor {
-    private Card player1Card = null, player2Card = null, player3Card = null;
+    // make this a part of the game object
+    public Card player3Card;
 
-    /*
-     * for(int i = 0; i < 0; i++){
-     * cardsOnTable[i] = -1;
-     * }
-     */
+    public ArrayList<Player> initializePlayers(int numOfPlayers, ArrayList<Hand> playerHands) {
+        ArrayList<Player> players = new ArrayList<Player>();
+        Player player1 = new Player(playerHands.get(0));
+        players.add(player1);
+        Player player2 = new Player(playerHands.get(1));
+        players.add(player2);
+        if (numOfPlayers == 3) {
+            Player player3 = new Player(playerHands.get(2));
+            players.add(player3);
+        } else if (numOfPlayers <= 1 || numOfPlayers > 3) {
+            System.err.print("ERROR! Number of players invalid. Players must be 2-3 players");
+            return null;
+        }
+        return players;
+    }
+
+    public void passOutCards(int numOfPlayers, Deck deck, ArrayList<Player> players) {
+        int count = 1;
+        for (int i = 0; i < deck.getCards().size(); i++) {
+            Card currentCard = deck.getCards().get(i);
+            if (count == 1) {
+                players.get(0).getPlayerHand().getCards().add(currentCard);
+                count++;
+            } else if (count == 2) {
+                players.get(1).getPlayerHand().getCards().add(currentCard);
+                count++;
+            } else if (count == 3) {
+                players.get(2).getPlayerHand().getCards().add(currentCard);
+                count++;
+            }
+            if (count == 4) {
+                count = 1;
+            }
+        }
+    }
 
     public Card evaluteCards(ArrayList<Card> cards) {
-        player1Card = cards.get(0);
-        player2Card = cards.get(1);
+        Card player1Card = cards.get(0);
+        Card player2Card = cards.get(1);
         if (cards.size() == 3) {
             player3Card = cards.get(2);
         }
-        if (containsAce(cards) && containsSix(cards)) {
+        if (containsAceAndTwo(cards)) {
 
         }
         Card winningCard = player1Card;
@@ -34,21 +65,18 @@ public class GameProcessor {
         return winningCard;
     }
 
-    public boolean containsAce(ArrayList<Card> cards) {
+    public boolean containsAceAndTwo(ArrayList<Card> cards) {
+        boolean ace = false;
+        boolean two = false;
         for (Card card : cards) {
-            if (card.getCardRank().equals("ACE")) {
-                return true;
-            }
+            if (card.getCardRank().equals("ACE"))
+                ace = true;
+            if (card.getCardRank().equals("TWO"))
+                two = true;
         }
-        return false;
-    }
+        if (ace && two)
+            return true;
 
-    public boolean containsSix(ArrayList<Card> cards) {
-        for (Card card : cards) {
-            if (card.getCardRank().equals("SIX")) {
-                return true;
-            }
-        }
         return false;
     }
 }
