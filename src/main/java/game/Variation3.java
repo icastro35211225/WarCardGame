@@ -1,26 +1,21 @@
 package game;
 
 import cards.*;
+import java.util.ArrayList;
 
 // This varation has where the cards won, will be put into a 
 // a separate points pile. The winner is the player with the most 
 // cards in their points pile
-public abstract class Variation3 implements Game {
+public class Variation3 implements WarClassic {
     private Player player3;
     private Hand player3Hand = null;
 
-    public void initializePlayers() {
-        players.add(player1);
-        players.add(player2);
-        players.add(player3);
-        playerHands.add(player1Hand);
-        playerHands.add(player2Hand);
-        playerHands.add(player3Hand);
-    }
 
     public void startGame(int numOfPlayers, long seed, int maxRounds, Deck deck) {
-        initializePlayers();
         deck.shuffleDeck(seed);
+        ArrayList<Player> players = new ArrayList<Player>();
+        players.add(player1);
+        players.add(player2);
         gameProcessor.passOutCards(numOfPlayers, deck, players);
 
         int round = 1;
