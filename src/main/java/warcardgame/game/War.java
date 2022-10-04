@@ -1,7 +1,7 @@
-package game;
+package warcardgame.game;
 
-import cards.*;
-import players.*;
+import warcardgame.cards.*;
+import warcardgame.players.*;
 
 import java.util.ArrayList;
 

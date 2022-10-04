@@ -1,4 +1,4 @@
-package cards;
+package warcardgame.cards;
 
 import java.util.*;
 

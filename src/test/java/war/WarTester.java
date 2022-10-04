@@ -1,5 +1,11 @@
-package game;
+package war;
 
+import warcardgame.players.Player;
+
+import java.util.ArrayList;
+
+import warcardgame.cards.Card;
+import warcardgame.cards.Deck;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -7,32 +13,27 @@ import junit.framework.TestSuite;
 /**
  * Unit test for simple App.
  */
-public class AppTest 
-    extends TestCase
-{
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public AppTest( String testName )
-    {
-        super( testName );
+public class WarTester
+        extends TestCase {
+
+    public void testPlayerHandEmpty() {
+        Player player = new Player();
+        ArrayList<Card> playerHand = new ArrayList<Card>();
+        player.setPlayerHand(playerHand);
+        assertTrue(player.isHandEmpty());
     }
 
-    /**
-     * @return the suite of tests being tested
-     */
-    public static Test suite()
-    {
-        return new TestSuite( AppTest.class );
+    public void testSetAddCard(Card card) {
+        Player player = new Player();
+        player.addCard(card);
+        assertFalse(player.isHandEmpty());
     }
 
-    /**
-     * Rigourous Test :-)
-     */
-    public void testApp()
-    {
-        assertTrue( true );
+    public void testGetPlayerHand() {
+        Player player = new Player();
+        Deck deck = new Deck();
+        deck.initializeDeck();
+        player.setPlayerHand(deck.getCards());
+        assertEquals(player.getPlayerHand(), deck.getCards());
     }
 }

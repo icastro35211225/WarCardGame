@@ -1,8 +1,8 @@
-package game;
+package warcardgame.game;
 
 import java.util.*;
-import cards.*;
-import players.Player;
+import warcardgame.cards.*;
+import warcardgame.players.Player;
 
 public class GameProcessor {
     public void addToWarPile(ArrayList<Card> warPile, Card card) {

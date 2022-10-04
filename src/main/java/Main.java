@@ -1,14 +1,10 @@
-import game.WarClassics;
-import game.WarPointsPile;
-import cards.Deck;
+import warcardgame.game.WarClassics;
+import warcardgame.game.WarPointsPile;
+import warcardgame.cards.Deck;
 
 public class Main {
 
     public static void main(String[] args) {
-        // if (args.length < 2 || args.length > 5) {
-        // System.err.println("Invalid Command Line Arguments");
-        // System.exit(-1);
-        // }
         int gameType = getGameType(args[0]);
         int maxRounds = 0;
         int seed = -1;

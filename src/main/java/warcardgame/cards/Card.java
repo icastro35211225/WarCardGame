@@ -1,4 +1,4 @@
-package cards;
+package warcardgame.cards;
 
 public class Card {
     private String cardSuit;

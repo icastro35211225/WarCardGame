@@ -1,6 +1,6 @@
-package players;
+package warcardgame.players;
 
-import cards.*;
+import warcardgame.cards.*;
 import java.util.ArrayList;
 
 public class Player {
