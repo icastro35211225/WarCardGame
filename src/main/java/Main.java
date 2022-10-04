@@ -1,6 +1,8 @@
 import warcardgame.game.WarClassics;
 import warcardgame.game.WarPointsPile;
 import warcardgame.players.Player;
+import warcardgame.players.PlayerClassic;
+import warcardgame.players.PlayerPile;
 
 import java.util.ArrayList;
 
@@ -15,8 +17,9 @@ public class Main {
         if (gameType == 1) {
             maxRounds = getMaxRounds(args[1]);
             seed = getRandomSeed(args[2]);
+        } else {
+            seed = getRandomSeed(args[1]);
         }
-        seed = getRandomSeed(args[1]);
         Deck deck = new Deck();
         runGame(gameType, maxRounds, seed, deck);
     }
@@ -55,26 +58,29 @@ public class Main {
     }
 
     public static void runGame(int gameType, int maxRounds, int seed, Deck deck) {
-        ArrayList<Player> players = new ArrayList<Player>();
-        Player player1 = new Player();
-        Player player2 = new Player();
+        ArrayList<PlayerPile> playerPiles = new ArrayList<PlayerPile>();
+        PlayerPile playerPile1 = new PlayerPile();
+        PlayerPile playerPile2 = new PlayerPile();
         switch (gameType) {
             case 1:
                 WarClassics warClassics = new WarClassics();
-                players.add(player1);
-                players.add(player2);
-                warClassics.startGame(players, deck, seed, maxRounds);
+                ArrayList<PlayerClassic> playerClassics = new ArrayList<PlayerClassic>();
+                PlayerClassic playerClassic1 = new PlayerClassic();
+                PlayerClassic playerClassic2 = new PlayerClassic();
+                playerClassics.add(playerClassic1);
+                playerClassics.add(playerClassic2);
+                warClassics.startGame(playerClassics, deck, seed, maxRounds);
                 break;
             case 2:
                 WarPointsPile warPointsPile = new WarPointsPile();
-                players.add(player1);
-                players.add(player2);
-                warPointsPile.startGame(players, deck, seed);
+                playerPiles.add(playerPile1);
+                playerPiles.add(playerPile2);
+                warPointsPile.startGame(playerPiles, deck, seed);
                 break;
             case 3:
                 WarPointsPile warThreePlayers = new WarPointsPile();
-                Player player3 = new Player();
-                warThreePlayers.startGame(players, deck, seed);
+                PlayerPile playerPile3 = new PlayerPile();
+                warThreePlayers.startGame(playerPiles, deck, seed);
                 break;
         }
     }

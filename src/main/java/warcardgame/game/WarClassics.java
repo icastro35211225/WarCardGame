@@ -1,6 +1,7 @@
 package warcardgame.game;
 
 import warcardgame.cards.*;
+import warcardgame.cards.Deck;
 import warcardgame.players.*;
 
 import java.util.ArrayList;
@@ -9,9 +10,9 @@ public class WarClassics implements War {
     ArrayList<Card> warPile = new ArrayList<Card>();
     GameProcessor gameProcessor = new GameProcessor();
 
-    public void startGame(ArrayList<Player> players, Deck deck, int seed, int maxRounds) {
+    public void startGame(ArrayList<PlayerClassic> players, Deck deck, int seed, int maxRounds) {
         deck.shuffleDeck(seed);
-        gameProcessor.dealCards(deck, players);
+        dealCards(deck, players);
 
         int round = 1;
         while (round <= maxRounds) {
@@ -25,9 +26,10 @@ public class WarClassics implements War {
             int warCheck = gameProcessor.checkWar(drawnCards);
             if (warCheck == WAR) {
                 System.out.println("\n***War!!***");
-                war(drawnCards, players);
+                war(drawnCards, players, warPile);
             } else {
                 int winnigCardIndex = evaluate(drawnCards);
+                gameProcessor.printRoundWinner(winnigCardIndex);
                 addWinningCard(winnigCardIndex, players, drawnCards);
             }
             if (warPile != null)
@@ -53,56 +55,21 @@ public class WarClassics implements War {
         return winningIndex;
     }
 
-    public void war(ArrayList<Card> cards, ArrayList<Player> players) {
-        printCards(cards);
-        if (players.get(PLAYER1).getPlayerHand().size() <= 1 || players.get(PLAYER2).getPlayerHand().size() <= 1) {
-            return;
-        }
-        if (cards.get(PLAYER1).getCardValue() > cards.get(PLAYER2).getCardValue()) {
-            for (Card currentCard : warPile) {
-                players.get(PLAYER1).addCard(currentCard);
+    public void dealCards(Deck deck, ArrayList<PlayerClassic> players) {
+        int i = 0;
+        while (i < deck.getCards().size()) {
+            if (i == 51) {
+                players.get(PLAYER1).getPlayerHand().add(deck.getCards().get(i));
+                break;
             }
-            players.get(PLAYER1).addCard(cards.get(PLAYER2));
-            return;
-        }
-        if (cards.get(PLAYER2).getCardValue() > cards.get(PLAYER1).getCardValue()) {
-            for (Card currentCard : warPile) {
-                players.get(PLAYER2).addCard(currentCard);
+            players.get(PLAYER1).getPlayerHand().add(deck.getCards().get(i));
+            players.get(PLAYER2).getPlayerHand().add(deck.getCards().get(i + 1));
+            if (players.size() == 3) {
+                players.get(PLAYER3).getPlayerHand().add(deck.getCards().get(i + 2));
+                i += 3;
+            } else {
+                i += 2;
             }
-
-            players.get(PLAYER2).addCard(cards.get(PLAYER1));
-            return;
-        }
-
-        gameProcessor.addToWarPile(warPile, cards.get(0));
-        gameProcessor.addToWarPile(warPile, cards.get(1));
-        gameProcessor.addToWarPile(warPile, players.get(PLAYER1).drawCard());
-        gameProcessor.addToWarPile(warPile, players.get(PLAYER2).drawCard());
-
-        if (gameProcessor.emptyHands(players)) {
-            endGame(players);
-            return;
-        }
-
-        cards.clear();
-        cards.add(players.get(PLAYER1).drawCard());
-        cards.add(players.get(PLAYER2).drawCard());
-        System.out.println("\n***WAR!***");
-        war(cards, players);
-    }
-
-    public void endGame(ArrayList<Player> players) {
-        calculateScore(players);
-        if (players.get(0).getScore() == players.get(1).getScore()) {
-            System.out.println("\n***GAME OVER***\nPlayer 1 TIES with Player 2");
-            printScores(players);
-        } else if (players.get(0).getScore() > players.get(1).getScore()) {
-            System.out.println("\n***GAME OVER***\nPlayer 1 WINS!!");
-            printScores(players);
-        } else if (players.get(PLAYER2).getScore() > players.get(PLAYER1).getScore()) {
-            System.out.println("\n***GAME OVER***\nPlayer 2 WINS!!");
-            printScores(players);
         }
     }
-
 }

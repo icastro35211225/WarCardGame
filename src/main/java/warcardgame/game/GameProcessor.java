@@ -11,27 +11,13 @@ public class GameProcessor {
     private static final int OK = 4;
     private static final int WAR = 5;
 
-    public ArrayList<Card> drawCards(ArrayList<Player> players) {
-        ArrayList<Card> drawnCards = new ArrayList<Card>();
-        for (Player currentPlayer : players) {
-            drawnCards.add(currentPlayer.drawCard());
-        }
-        return drawnCards;
-    }
-
     public void addToWarPile(ArrayList<Card> warPile, Card card) {
         if (!warPile.contains(card)) {
             warPile.add(card);
         }
     }
 
-    public void calculateScorePile(ArrayList<Player> players) {
-        for (Player currentPlayer : players) {
-            currentPlayer.setScore(currentPlayer.getPlayerHand().size());
-        }
-    }
-
-    // FIX THIS
+    // ADD TO PLAYER INTERFACE
     public void dealCards(Deck deck, ArrayList<Player> players) {
         int i = 0;
         while (i < deck.getCards().size()) {
@@ -97,56 +83,13 @@ public class GameProcessor {
         return OK;
     }
 
-    // FIX THIS
-    public void warThreePlayers(ArrayList<Card> cards, ArrayList<Player> players, ArrayList<Card> warPile) {
-        if ((players.get(0).getPlayerHand().size() <= 1 || players.get(1).getPlayerHand().size() <= 1)
-                || players.get(2).getPlayerHand().size() <= 1) {
-            return;
+    public void addToWarPile(ArrayList<Card> warPile, ArrayList<Card> cards) {
+        for (Card currentCard : cards) {
+            warPile.add(currentCard);
         }
-        if (cards.get(2).getCardValue() > cards.get(1).getCardValue()
-                && cards.get(2).getCardValue() > cards.get(0).getCardValue()) {
-            for (Card currentCard : warPile) {
-                players.get(2).addToCardsWonPile(currentCard);
-            }
-            players.get(2).addToCardsWonPile(cards.get(1));
-            players.get(2).addToCardsWonPile(cards.get(0));
+    }
 
-            return;
-        }
-        if (cards.get(1).getCardValue() > cards.get(0).getCardValue()
-                && cards.get(1).getCardValue() > cards.get(2).getCardValue()) {
-            for (Card currentCard : warPile) {
-                players.get(1).addToCardsWonPile(currentCard);
-            }
-            players.get(1).addToCardsWonPile(cards.get(0));
-            players.get(1).addToCardsWonPile(cards.get(2));
-            return;
-        }
-        if (cards.get(0).getCardValue() > cards.get(1).getCardValue()
-                && cards.get(0).getCardValue() > cards.get(2).getCardValue()) {
-            for (Card currentCard : warPile) {
-                players.get(0).addToCardsWonPile(currentCard);
-            }
-            players.get(0).addToCardsWonPile(cards.get(1));
-            players.get(0).addToCardsWonPile(cards.get(2));
-            return;
-        }
-        addToWarPile(warPile, cards.get(0));
-        addToWarPile(warPile, cards.get(1));
-        addToWarPile(warPile, cards.get(2));
-        addToWarPile(warPile, players.get(0).drawCard());
-        addToWarPile(warPile, players.get(1).drawCard());
-        addToWarPile(warPile, players.get(2).drawCard());
-
-        if (emptyHands(players)) {
-            return;
-        }
-
-        cards.clear();
-        cards.add(players.get(0).drawCard());
-        cards.add(players.get(1).drawCard());
-        cards.add(players.get(2).drawCard());
-        System.out.println("\n***WAR!***");
-        warThreePlayers(cards, players, warPile);
+    public void printRoundWinner(int winner) {
+        System.out.println("Player " + (winner + 1) + " wins the round");
     }
 }

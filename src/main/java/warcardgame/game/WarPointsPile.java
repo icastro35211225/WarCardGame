@@ -9,29 +9,32 @@ public class WarPointsPile implements War {
     ArrayList<Card> warPile = new ArrayList<Card>();
     GameProcessor gameProcessor = new GameProcessor();
 
-    public void startGame(ArrayList<Player> players, Deck deck, int seed) {
+    public void startGame(ArrayList<PlayerPile> players, Deck deck, int seed) {
         deck.shuffleDeck(seed);
         gameProcessor.dealCards(deck, players);
 
         while (!gameProcessor.emptyHands(players)) {
-            if (gameProcessor.emptyHands(players)) {
-                endGame(players);
-                break;
-            }
             ArrayList<Card> drawnCards = gameProcessor.drawCards(players);
             printCards(drawnCards);
             int warCheck = gameProcessor.checkWar(drawnCards);
             if (warCheck == WAR) {
                 System.out.println("\n***War!!***");
-                war(drawnCards, players);
+                war(drawnCards, players, warPile);
+            } else {
+                int winnigCardIndex = evaluate(drawnCards);
+                gameProcessor.printRoundWinner(winnigCardIndex);
+                addWinningCard(winnigCardIndex, players, drawnCards);
             }
+            if (warPile != null)
+                warPile.clear();
             gameProcessor.resetCardValues(players);
             System.out.println();
             if (gameProcessor.emptyHands(players)) {
-                endGame(players);
                 break;
             }
+
         }
+        endGame(players);
     }
 
     public int evaluate(ArrayList<Card> cards) {
@@ -44,63 +47,58 @@ public class WarPointsPile implements War {
         return winningIndex;
     }
 
-    public void war(ArrayList<Card> cards, ArrayList<Player> players) {
-        printCards(cards);
-        if (players.get(PLAYER1).getPlayerHand().size() <= 1 || players.get(PLAYER2).getPlayerHand().size() <= 1) {
-            return;
+    public void calculateScore(ArrayList<Player> players) {
+        for (Player player : players) {
+            player.setScore(player.getCardsWonPile().size());
         }
-        if (cards.get(0).getCardValue() > cards.get(1).getCardValue()) {
-            for (Card currentCard : warPile) {
-                players.get(PLAYER1).addToCardsWonPile(currentCard);
-            }
-            players.get(PLAYER1).addToCardsWonPile(cards.get(1));
-            return;
-        }
-        if (cards.get(1).getCardValue() > cards.get(0).getCardValue()) {
-            for (Card currentCard : warPile) {
-                players.get(PLAYER2).addToCardsWonPile(currentCard);
-            }
+    }
 
-            players.get(PLAYER2).addToCardsWonPile(cards.get(0));
-            return;
+    public void passWinnerCards(int winner, ArrayList<Player> players, ArrayList<Card> cards) {
+        for (Card currentCard : cards) {
+            players.get(winner).getCardsWonPile().add(currentCard);
         }
-        gameProcessor.addToWarPile(warPile, cards.get(0));
-        gameProcessor.addToWarPile(warPile, cards.get(1));
-        gameProcessor.addToWarPile(warPile, players.get(PLAYER1).drawCard());
-        gameProcessor.addToWarPile(warPile, players.get(PLAYER2).drawCard());
-        if (gameProcessor.emptyHands(players)) {
-            endGame(players);
-            return;
+    }
+
+    public void addWinningCard(int winnigIndex, ArrayList<Player> players, ArrayList<Card> drawnCards) {
+        for (Card currentCard : drawnCards) {
+            players.get(winnigIndex).getCardsWonPile().add(currentCard);
         }
-        cards.clear();
-        cards.add(players.get(PLAYER1).drawCard());
-        cards.add(players.get(PLAYER2).drawCard());
-        System.out.println("\n***WAR!***");
-        war(cards, players);
     }
 
     public void endGame(ArrayList<Player> players) {
-        if (players.get(0).getScore() == players.get(1).getScore()) {
-            System.out.println("\n***GAME OVER***\nPlayer 1 TIES with Player 2");
-            printScores(players);
-        } else if (players.get(0).getScore() > players.get(1).getScore()) {
-            System.out.println("\n***GAME OVER***\nPlayer 1 WINS!!");
-            printScores(players);
-        } else if (players.get(PLAYER2).getScore() > players.get(PLAYER1).getScore()) {
-            System.out.println("\n***GAME OVER***\nPlayer 2 WINS!!");
-            printScores(players);
-        } else if ((players.size() == 3) && players.get(2).getScore() > players.get(1).getScore()
-                && players.get(2).getScore() > players.get(0).getScore()) {
-            System.out.println("\n***GAME OVER***\nPlayer 3 WINS!!");
-            printScores(players);
-        } else if ((players.size() == 3) && players.get(1).getScore() > players.get(0).getScore()
-                && players.get(1).getScore() > players.get(2).getScore()) {
-            System.out.println("\n***GAME OVER***\nPlayer 2 WINS!!");
-            printScores(players);
-        } else if ((players.size() == 3) && players.get(0).getScore() > players.get(1).getScore()
-                && players.get(0).getScore() > players.get(2).getScore()) {
-            System.out.println("\n***GAME OVER***\nPlayer 1 WINS!!");
-            printScores(players);
+        calculateScore(players);
+        int winnigIndex = 0;
+        for (int i = 0; i < players.size(); i++) {
+            if (players.get(i).getScore() > players.get(winnigIndex).getScore()) {
+                winnigIndex = i;
+            }
+            if (i != 0 && players.get(i).getScore() == players.get(winnigIndex).getScore()) {
+                if (checkForTie(players)) {
+                    System.out.println("There's a TIE!!");
+                    printScores(players);
+                }
+                return;
+            }
+        }
+        System.out.println("***GAME OVER***\nPlayer " + (winnigIndex + 1) + " WINS!");
+        printScores(players);
+    }
+
+    public void dealCards(Deck deck, ArrayList<Player> players) {
+        int i = 0;
+        while (i < deck.getCards().size()) {
+            if (i == 51) {
+                players.get(PLAYER1).getPlayerHand().add(deck.getCards().get(i));
+                break;
+            }
+            players.get(PLAYER1).getPlayerHand().add(deck.getCards().get(i));
+            players.get(PLAYER2).getPlayerHand().add(deck.getCards().get(i + 1));
+            if (players.size() == 3) {
+                players.get(PLAYER3).getPlayerHand().add(deck.getCards().get(i + 2));
+                i += 3;
+            } else {
+                i += 2;
+            }
         }
     }
 }

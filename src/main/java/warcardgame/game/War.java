@@ -11,6 +11,7 @@ public interface War {
     public static final int PLAYER3 = 2;
     public static final int OK = 4;
     public static final int WAR = 5;
+    public static final int END = 6;
 
     public default void calculateScore(ArrayList<Player> players) {
         for (Player player : players) {
@@ -37,9 +38,66 @@ public interface War {
         }
     }
 
+    public default boolean checkForTie(ArrayList<Player> players) {
+        for (Player winningPlayer : players) {
+            for (Player currentPlayer : players) {
+                if (currentPlayer.getScore() == winningPlayer.getScore()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public default int war(ArrayList<Card> cards, ArrayList<Player> players, ArrayList<Card> warPile) {
+        GameProcessor gameProcessor = new GameProcessor();
+        printCards(cards);
+        int winner;
+
+        if (gameProcessor.emptyHands(players)) {
+            return -1;
+        }
+
+        if (gameProcessor.checkWar(cards) == WAR) {
+            warPile = gameProcessor.drawCards(players);
+            gameProcessor.addToWarPile(warPile, cards);
+            cards = gameProcessor.drawCards(players);
+            System.out.println("\n***War!!***");
+            winner = war(cards, players, warPile);
+            passWinnerCards(winner, players, cards);
+            return winner;
+        }
+
+        winner = evaluate(cards);
+        gameProcessor.printRoundWinner(winner);
+        passWinnerCards(winner, players, cards);
+        return winner;
+    }
+
+    public default void passWinnerCards(int winner, ArrayList<Player> players, ArrayList<Card> cards) {
+        for (Card currentCard : cards) {
+            players.get(winner).getPlayerHand().add(currentCard);
+        }
+    }
+
+    public default void endGame(ArrayList<Player> players) {
+        calculateScore(players);
+        int winnigIndex = 0;
+        for (int i = 0; i < players.size(); i++) {
+            if (players.get(i).getScore() > players.get(winnigIndex).getScore()) {
+                winnigIndex = i;
+            }
+            if (i != 0 && players.get(i).getScore() == players.get(winnigIndex).getScore()) {
+                if (checkForTie(players)) {
+                    System.out.println("There's a TIE!!");
+                    printScores(players);
+                }
+                return;
+            }
+        }
+        System.out.println("***GAME OVER***\nPlayer " + (winnigIndex + 1) + " WINS!");
+        printScores(players);
+    }
+
     int evaluate(ArrayList<Card> cards);
-
-    void endGame(ArrayList<Player> players);
-
-    void war(ArrayList<Card> cards, ArrayList<Player> players);
 }
