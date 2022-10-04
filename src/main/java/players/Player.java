@@ -42,7 +42,8 @@ public class Player {
     }
 
     public void addCard(Card card) {
-        playerHand.add(card);
+        if (!playerHand.contains(card))
+            playerHand.add(card);
     }
 
     public void addToCardsWonPile(Card cardToAdd) {

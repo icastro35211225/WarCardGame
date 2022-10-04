@@ -30,7 +30,7 @@ public class Deck {
         return cards;
     }
 
-    public void shuffleDeck(long seed) {
+    public void shuffleDeck(int seed) {
         Random rand = new Random();
         rand.setSeed(seed);
         for (int i = 0; i < SIZE; i++) {

@@ -14,7 +14,7 @@ public class WarPointsPile implements War {
     ArrayList<Player> players = new ArrayList<Player>();
     ArrayList<Card> warPile = new ArrayList<Card>();
 
-    public void startGame(int numOfPlayers, Deck deck, long seed) {
+    public void startGame(int numOfPlayers, Deck deck, int seed) {
         deck.shuffleDeck(seed);
         initializePlayers();
         gameProcessor.dealCards(deck, players);
