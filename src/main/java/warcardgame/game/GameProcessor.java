@@ -5,6 +5,20 @@ import warcardgame.cards.*;
 import warcardgame.players.Player;
 
 public class GameProcessor {
+    private static final int PLAYER1 = 0;
+    private static final int PLAYER2 = 1;
+    private static final int PLAYER3 = 2;
+    private static final int OK = 4;
+    private static final int WAR = 5;
+
+    public ArrayList<Card> drawCards(ArrayList<Player> players) {
+        ArrayList<Card> drawnCards = new ArrayList<Card>();
+        for (Player currentPlayer : players) {
+            drawnCards.add(currentPlayer.drawCard());
+        }
+        return drawnCards;
+    }
+
     public void addToWarPile(ArrayList<Card> warPile, Card card) {
         if (!warPile.contains(card)) {
             warPile.add(card);
@@ -12,67 +26,45 @@ public class GameProcessor {
     }
 
     public void calculateScorePile(ArrayList<Player> players) {
-        int player1PileCount = players.get(0).getPlayerHand().size();
-        int player2PileCount = players.get(1).getPlayerHand().size();
-        if (players.size() == 3) {
-            int player3PileCount = players.get(2).getPlayerHand().size();
-            players.get(2).setScore(player3PileCount);
+        for (Player currentPlayer : players) {
+            currentPlayer.setScore(currentPlayer.getPlayerHand().size());
         }
-        players.get(0).setScore(player1PileCount);
-        players.get(1).setScore(player2PileCount);
     }
 
+    // FIX THIS
     public void dealCards(Deck deck, ArrayList<Player> players) {
-        Card player1Card;
-        Card player2Card;
-        Card player3Card;
-        ArrayList<Card> player1Hand = new ArrayList<Card>();
-        ArrayList<Card> player2Hand = new ArrayList<Card>();
-        ArrayList<Card> player3Hand = new ArrayList<Card>();
-
         int i = 0;
         while (i < deck.getCards().size()) {
             if (i == 51) {
-                player1Card = deck.getCards().get(i);
-                player1Hand.add(player1Card);
+                players.get(PLAYER1).getPlayerHand().add(deck.getCards().get(i));
                 break;
             }
-            player1Card = deck.getCards().get(i);
-            player1Hand.add(player1Card);
-            player2Card = deck.getCards().get(i + 1);
-            player2Hand.add(player2Card);
+            players.get(PLAYER1).getPlayerHand().add(deck.getCards().get(i));
+            players.get(PLAYER2).getPlayerHand().add(deck.getCards().get(i + 1));
             if (players.size() == 3) {
-                player3Card = deck.getCards().get(i + 2);
-                player3Hand.add(player3Card);
+                players.get(PLAYER3).getPlayerHand().add(deck.getCards().get(i + 2));
                 i += 3;
             } else {
                 i += 2;
             }
         }
-        players.get(0).setPlayerHand(player1Hand);
-        players.get(1).setPlayerHand(player2Hand);
-        if (players.size() == 3) {
-            players.get(2).setPlayerHand(player3Hand);
-        }
     }
 
     public void checkAceTwo(ArrayList<Card> cards) {
-        if (cards.size() == 3) {
-            if (cards.get(0).getCardValue() == 2
-                    && (cards.get(1).getCardValue() == 14 || cards.get(2).getCardValue() == 14)) {
-                cards.get(0).setCardValue(15);
-            } else if (cards.get(1).getCardValue() == 2
-                    && (cards.get(0).getCardValue() == 14 || cards.get(2).getCardValue() == 14)) {
-                cards.get(1).setCardValue(15);
-            } else if (cards.get(2).getCardValue() == 2
-                    && (cards.get(1).getCardValue() == 14 || cards.get(0).getCardValue() == 14)) {
-                cards.get(2).setCardValue(15);
+        boolean isThereAce = false;
+        boolean isThereTwo = false;
+        int twoIndex = 0;
+        for (int i = 0; i < cards.size(); i++) {
+            if (cards.get(i).getCardValue() == 14) {
+                isThereAce = true;
+            }
+            if (cards.get(i).getCardValue() == 2) {
+                isThereTwo = true;
+                twoIndex = i;
             }
         }
-        if (cards.get(0).getCardValue() == 2 && cards.get(1).getCardValue() == 14) {
-            cards.get(0).setCardValue(15);
-        } else if (cards.get(0).getCardValue() == 14 && cards.get(1).getCardValue() == 2) {
-            cards.get(1).setCardValue(15);
+        if (isThereAce && isThereTwo) {
+            cards.get(twoIndex).setCardValue(15);
         }
     }
 
@@ -87,45 +79,25 @@ public class GameProcessor {
     }
 
     public boolean emptyHands(ArrayList<Player> players) {
-        if (players.size() == 3 && players.get(2).getPlayerHand().isEmpty()) {
-            return true;
-        }
-        if (players.get(0).isHandEmpty() || players.get(1).isHandEmpty()) {
-            return true;
+        for (Player player : players) {
+            if (player.getPlayerHand().isEmpty()) {
+                return true;
+            }
         }
         return false;
     }
 
-    public ArrayList<Card> checkWar(ArrayList<Card> cards) {
-        ArrayList<Card> warCards = new ArrayList<Card>();
-        if (cards.size() == 3) {
-            if (cards.get(0).getCardValue() == cards.get(1).getCardValue()
-                    && cards.get(1).getCardValue() == cards.get(2).getCardValue()) {
-                warCards.add(cards.get(0));
-                warCards.add(cards.get(1));
-                warCards.add(cards.get(2));
-            } else if (cards.get(0).getCardValue() == cards.get(1).getCardValue()) {
-                warCards.add(cards.get(0));
-                warCards.add(cards.get(1));
-                return warCards;
-            } else if (cards.get(0).getCardValue() == cards.get(2).getCardValue()) {
-                warCards.add(cards.get(0));
-                warCards.add(cards.get(1));
-                return warCards;
-            } else if (cards.get(1).getCardValue() == cards.get(2).getCardValue()) {
-                warCards.add(cards.get(1));
-                warCards.add(cards.get(2));
-                return warCards;
+    public int checkWar(ArrayList<Card> cards) {
+        Set<Integer> values = new HashSet<Integer>();
+        for (Card currentCard : cards) {
+            if (values.add(currentCard.getCardValue()) == false) {
+                return WAR;
             }
         }
-        if (cards.get(0).getCardValue() == cards.get(1).getCardValue()) {
-            warCards.add(cards.get(0));
-            warCards.add(cards.get(1));
-            return warCards;
-        }
-        return null;
+        return OK;
     }
 
+    // FIX THIS
     public void warThreePlayers(ArrayList<Card> cards, ArrayList<Player> players, ArrayList<Card> warPile) {
         if ((players.get(0).getPlayerHand().size() <= 1 || players.get(1).getPlayerHand().size() <= 1)
                 || players.get(2).getPlayerHand().size() <= 1) {

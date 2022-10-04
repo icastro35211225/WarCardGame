@@ -6,27 +6,29 @@ import warcardgame.players.*;
 import java.util.ArrayList;
 
 public class WarClassics implements War {
-    public Player player1 = new Player();
-    public Player player2 = new Player();
-    ArrayList<Player> players = new ArrayList<Player>();
     ArrayList<Card> warPile = new ArrayList<Card>();
     GameProcessor gameProcessor = new GameProcessor();
 
-    public void startGame(Deck deck, int seed, int maxRounds) {
+    public void startGame(ArrayList<Player> players, Deck deck, int seed, int maxRounds) {
         deck.shuffleDeck(seed);
-        initializePlayers();
         gameProcessor.dealCards(deck, players);
 
         int round = 1;
         while (round <= maxRounds) {
-            System.out.println("***Round " + round + "***");
-            ArrayList<Card> faceUpCards = new ArrayList<Card>();
-            faceUpCards.add(player1.drawCard());
-            faceUpCards.add(player2.drawCard());
-            printCards(faceUpCards);
-            int eval = evaluate(faceUpCards);
-            if (eval == -1) {
+            if (gameProcessor.emptyHands(players)) {
+                endGame(players);
                 break;
+            }
+            System.out.println("***Round " + round + "***");
+            ArrayList<Card> drawnCards = gameProcessor.drawCards(players);
+            printCards(drawnCards);
+            int warCheck = gameProcessor.checkWar(drawnCards);
+            if (warCheck == WAR) {
+                System.out.println("\n***War!!***");
+                war(drawnCards, players);
+            } else {
+                int winnigCardIndex = evaluate(drawnCards);
+                addWinningCard(winnigCardIndex, players, drawnCards);
             }
             if (warPile != null)
                 warPile.clear();
@@ -36,66 +38,46 @@ public class WarClassics implements War {
             if (gameProcessor.emptyHands(players)) {
                 break;
             }
+
         }
         endGame(players);
     }
 
-    public void initializePlayers() {
-        players.add(player1);
-        players.add(player2);
-    }
-
     public int evaluate(ArrayList<Card> cards) {
-        warPile = gameProcessor.checkWar(cards);
-        if (warPile != null) {
-            System.out.println("\n***WAR!***");
-            war(cards);
-            if (gameProcessor.emptyHands(players)) {
-                return -1;
+        int winningIndex = 0;
+        for (int i = 0; i < cards.size(); i++) {
+            if (cards.get(winningIndex).getCardValue() < cards.get(i).getCardValue()) {
+                winningIndex = i;
             }
         }
-
-        gameProcessor.checkAceTwo(cards);
-
-        if (cards.get(0).getCardValue() > cards.get(1).getCardValue()) {
-            player1.addCard(cards.get(0));
-            player1.addCard(cards.get(1));
-
-            System.out.println("Player 1 wins the round");
-        }
-        if (cards.get(1).getCardValue() > cards.get(0).getCardValue()) {
-            player2.addCard(cards.get(0));
-            player2.addCard(cards.get(1));
-            System.out.println("Player 2 wins the round");
-        }
-        return 1;
+        return winningIndex;
     }
 
-    public void war(ArrayList<Card> cards) {
+    public void war(ArrayList<Card> cards, ArrayList<Player> players) {
         printCards(cards);
-        if (player1.getPlayerHand().size() <= 1 || player2.getPlayerHand().size() <= 1) {
+        if (players.get(PLAYER1).getPlayerHand().size() <= 1 || players.get(PLAYER2).getPlayerHand().size() <= 1) {
             return;
         }
-        if (cards.get(0).getCardValue() > cards.get(1).getCardValue()) {
+        if (cards.get(PLAYER1).getCardValue() > cards.get(PLAYER2).getCardValue()) {
             for (Card currentCard : warPile) {
-                player1.addCard(currentCard);
+                players.get(PLAYER1).addCard(currentCard);
             }
-            player1.addCard(cards.get(1));
+            players.get(PLAYER1).addCard(cards.get(PLAYER2));
             return;
         }
-        if (cards.get(1).getCardValue() > cards.get(0).getCardValue()) {
+        if (cards.get(PLAYER2).getCardValue() > cards.get(PLAYER1).getCardValue()) {
             for (Card currentCard : warPile) {
-                player2.addCard(currentCard);
+                players.get(PLAYER2).addCard(currentCard);
             }
 
-            player2.addCard(cards.get(0));
+            players.get(PLAYER2).addCard(cards.get(PLAYER1));
             return;
         }
 
         gameProcessor.addToWarPile(warPile, cards.get(0));
         gameProcessor.addToWarPile(warPile, cards.get(1));
-        gameProcessor.addToWarPile(warPile, player1.drawCard());
-        gameProcessor.addToWarPile(warPile, player2.drawCard());
+        gameProcessor.addToWarPile(warPile, players.get(PLAYER1).drawCard());
+        gameProcessor.addToWarPile(warPile, players.get(PLAYER2).drawCard());
 
         if (gameProcessor.emptyHands(players)) {
             endGame(players);
@@ -103,10 +85,10 @@ public class WarClassics implements War {
         }
 
         cards.clear();
-        cards.add(player1.drawCard());
-        cards.add(player2.drawCard());
+        cards.add(players.get(PLAYER1).drawCard());
+        cards.add(players.get(PLAYER2).drawCard());
         System.out.println("\n***WAR!***");
-        war(cards);
+        war(cards, players);
     }
 
     public void endGame(ArrayList<Player> players) {
@@ -117,7 +99,7 @@ public class WarClassics implements War {
         } else if (players.get(0).getScore() > players.get(1).getScore()) {
             System.out.println("\n***GAME OVER***\nPlayer 1 WINS!!");
             printScores(players);
-        } else if (player2.getScore() > player1.getScore()) {
+        } else if (players.get(PLAYER2).getScore() > players.get(PLAYER1).getScore()) {
             System.out.println("\n***GAME OVER***\nPlayer 2 WINS!!");
             printScores(players);
         }
