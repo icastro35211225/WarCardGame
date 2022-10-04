@@ -47,8 +47,10 @@ public class Player {
     }
 
     public void addToCardsWonPile(Card cardToAdd) {
-        cardsWonPile.add(cardToAdd);
-        score++;
+        if (!cardsWonPile.contains(cardToAdd)) {
+            cardsWonPile.add(cardToAdd);
+            score++;
+        }
     }
 
     public boolean isHandEmpty() {

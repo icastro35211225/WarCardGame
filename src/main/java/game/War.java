@@ -5,27 +5,13 @@ import players.*;
 
 import java.util.ArrayList;
 
-//use interfaces to implement diff variations
-
-// version ehre 2 players play until:
-// 1) one player has won all of the cards
-// 2) a max number of rounds have been played
 public interface War {
-    public Deck deck = new Deck();
-    public Player player3 = new Player();
-    public GameProcessor gameProcessor = new GameProcessor();
 
     public default void calculateScore(ArrayList<Player> players) {
         int player1HandCount = players.get(0).getPlayerHand().size();
         int player2HandCount = players.get(1).getPlayerHand().size();
-        int player3HandCount = 0;
         players.get(0).setScore(player1HandCount);
         players.get(1).setScore(player2HandCount);
-
-        if (players.size() == 3) {
-            player3HandCount = players.get(2).getPlayerHand().size();
-            players.get(2).setScore(player3HandCount);
-        }
     }
 
     public default void printCards(ArrayList<Card> cards) {
@@ -49,8 +35,6 @@ public interface War {
             System.out.println("Player 3 has a score of " + players.get(1).getScore());
         }
     }
-
-    boolean emptyHands(ArrayList<Player> players);
 
     int evaluate(ArrayList<Card> cards);
 

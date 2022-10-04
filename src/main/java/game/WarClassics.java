@@ -5,14 +5,12 @@ import players.*;
 
 import java.util.ArrayList;
 
-// two player version where cards are not recycled
-// where the game ends when the players have used initially given cards
-// add won cards into a points pile, instead of back to player
 public class WarClassics implements War {
     public Player player1 = new Player();
     public Player player2 = new Player();
     ArrayList<Player> players = new ArrayList<Player>();
     ArrayList<Card> warPile = new ArrayList<Card>();
+    GameProcessor gameProcessor = new GameProcessor();
 
     public void startGame(Deck deck, int seed, int maxRounds) {
         deck.shuffleDeck(seed);
@@ -30,11 +28,12 @@ public class WarClassics implements War {
             if (eval == -1) {
                 break;
             }
-            warPile.clear();
-            gameProcessor.resetCardValues(player1, player2);
+            if (warPile != null)
+                warPile.clear();
+            gameProcessor.resetCardValues(players);
             System.out.println();
             round++;
-            if (emptyHands(players)) {
+            if (gameProcessor.emptyHands(players)) {
                 break;
             }
         }
@@ -47,12 +46,11 @@ public class WarClassics implements War {
     }
 
     public int evaluate(ArrayList<Card> cards) {
-        if (cards.get(0).getCardValue() == cards.get(1).getCardValue()) {
+        warPile = gameProcessor.checkWar(cards);
+        if (warPile != null) {
             System.out.println("\n***WAR!***");
-            warPile.add(cards.get(0));
-            warPile.add(cards.get(1));
             war(cards);
-            if (emptyHands(players)) {
+            if (gameProcessor.emptyHands(players)) {
                 return -1;
             }
         }
@@ -71,17 +69,6 @@ public class WarClassics implements War {
             System.out.println("Player 2 wins the round");
         }
         return 1;
-    }
-
-    public boolean emptyFromWar(ArrayList<Card> cards, Player player) {
-        if (player.getPlayerHand().isEmpty()) {
-            player2.addCard(cards.get(0));
-            player2.addCard(cards.get(1));
-            for (Card currCard : warPile) {
-                player2.addCard(currCard);
-            }
-        }
-        return false;
     }
 
     public void war(ArrayList<Card> cards) {
@@ -110,7 +97,7 @@ public class WarClassics implements War {
         gameProcessor.addToWarPile(warPile, player1.drawCard());
         gameProcessor.addToWarPile(warPile, player2.drawCard());
 
-        if (emptyHands(players)) {
+        if (gameProcessor.emptyHands(players)) {
             endGame(players);
             return;
         }
@@ -136,10 +123,4 @@ public class WarClassics implements War {
         }
     }
 
-    public boolean emptyHands(ArrayList<Player> players) {
-        if (players.get(0).isHandEmpty() || players.get(1).isHandEmpty()) {
-            return true;
-        }
-        return false;
-    }
 }
