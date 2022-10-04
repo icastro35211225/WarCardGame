@@ -3,7 +3,7 @@ package cards;
 import java.util.*;
 
 public class Deck {
-    private final int SIZE = 36;
+    private final int SIZE = 52;
     private ArrayList<Card> cards;
     private final String[] suits = { "DIAMONDS", "CLUBS", "HEARTS", "SPADES" };
     private final String[] ranks = { "ACE", "KING", "QUEEN", "JACK", "TEN", "NINE", "EIGHT", "SEVEN", "SIX", "FIVE",
@@ -11,10 +11,14 @@ public class Deck {
 
     public Deck() {
         cards = new ArrayList<Card>();
+        initializeDeck();
+    }
+
+    public void initializeDeck() {
         int value = 14;
-        for (String suit : suits) {
-            for (int i = 0; i < ranks.length; i++) {
-                Card currentCard = new Card(suit, ranks[i], value);
+        for (int i = 0; i < suits.length; i++) {
+            for (int j = 0; j < ranks.length; j++) {
+                Card currentCard = new Card(suits[i], ranks[j], value);
                 cards.add(currentCard);
                 value--;
             }
@@ -36,10 +40,10 @@ public class Deck {
     }
 
     public String toString() {
-        StringBuffer stringBuff = new StringBuffer();
+        String ret = "";
         for (Card card : cards) {
-            stringBuff.append(card.toString() + "\n");
+            ret += card.toString() + "\n";
         }
-        return stringBuff.toString();
+        return ret;
     }
 }

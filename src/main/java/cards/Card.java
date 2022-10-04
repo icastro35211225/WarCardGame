@@ -36,6 +36,6 @@ public class Card {
     }
 
     public String toString() {
-        return cardValue + " of " + cardSuit;
+        return cardRank + " of " + cardSuit;
     }
 }
