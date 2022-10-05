@@ -13,14 +13,30 @@ public interface Player {
         return false;
     }
 
-    public default void removeCard(Card cardToRemove, ArrayList<Card> playerHand) {
-        playerHand.remove(cardToRemove);
+    public default boolean findEmptyHand(ArrayList<ArrayList<Card>> playerHands) {
+        for (ArrayList<Card> currentHand : playerHands) {
+            if (isHandEmpty(currentHand)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public default Card drawCard(ArrayList<Card> playerHand) {
-        Card card = playerHand.get(0);
-        playerHand.remove(0);
-        return card;
+        if (!isHandEmpty(playerHand)) {
+            Card card = playerHand.get(0);
+            playerHand.remove(0);
+            return card;
+        }
+        return null;
+    }
+
+    public default ArrayList<Card> drawCards(ArrayList<ArrayList<Card>> playerHands) {
+        ArrayList<Card> drawnCards = new ArrayList<Card>();
+        for (ArrayList<Card> currHand : playerHands) {
+            drawnCards.add(drawCard(currHand));
+        }
+        return drawnCards;
     }
 
     public default void printHand(ArrayList<Card> playerHand) {
@@ -29,5 +45,9 @@ public interface Player {
         }
     }
 
-    void addCard(Card card);
+    public default void addCard(Card card, ArrayList<Card> playerHand) {
+        if (!playerHand.contains(card)) {
+            playerHand.add(card);
+        }
+    }
 }

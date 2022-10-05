@@ -1,10 +1,5 @@
 import warcardgame.game.WarClassics;
 import warcardgame.game.WarPointsPile;
-import warcardgame.players.Player;
-import warcardgame.players.PlayerClassic;
-import warcardgame.players.PlayerPile;
-
-import java.util.ArrayList;
 
 import warcardgame.cards.Deck;
 
@@ -58,29 +53,18 @@ public class Main {
     }
 
     public static void runGame(int gameType, int maxRounds, int seed, Deck deck) {
-        ArrayList<PlayerPile> playerPiles = new ArrayList<PlayerPile>();
-        PlayerPile playerPile1 = new PlayerPile();
-        PlayerPile playerPile2 = new PlayerPile();
         switch (gameType) {
             case 1:
                 WarClassics warClassics = new WarClassics();
-                ArrayList<PlayerClassic> playerClassics = new ArrayList<PlayerClassic>();
-                PlayerClassic playerClassic1 = new PlayerClassic();
-                PlayerClassic playerClassic2 = new PlayerClassic();
-                playerClassics.add(playerClassic1);
-                playerClassics.add(playerClassic2);
-                warClassics.startGame(playerClassics, deck, seed, maxRounds);
+                warClassics.startGame(deck, seed, maxRounds);
                 break;
             case 2:
                 WarPointsPile warPointsPile = new WarPointsPile();
-                playerPiles.add(playerPile1);
-                playerPiles.add(playerPile2);
-                warPointsPile.startGame(playerPiles, deck, seed);
+                warPointsPile.startGame(2, deck, seed);
                 break;
             case 3:
                 WarPointsPile warThreePlayers = new WarPointsPile();
-                PlayerPile playerPile3 = new PlayerPile();
-                warThreePlayers.startGame(playerPiles, deck, seed);
+                warThreePlayers.startGame(3, deck, seed);
                 break;
         }
     }

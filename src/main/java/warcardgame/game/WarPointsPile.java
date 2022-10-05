@@ -1,79 +1,69 @@
 package warcardgame.game;
 
 import warcardgame.cards.*;
+import warcardgame.cards.Deck;
 import warcardgame.players.*;
 
 import java.util.ArrayList;
 
 public class WarPointsPile implements War {
+    ArrayList<PlayerPile> players = new ArrayList<PlayerPile>();
     ArrayList<Card> warPile = new ArrayList<Card>();
     GameProcessor gameProcessor = new GameProcessor();
+    ArrayList<ArrayList<Card>> playerHands = new ArrayList<ArrayList<Card>>();
+    PlayerPile playerHandler = players.get(0);
 
-    public void startGame(ArrayList<PlayerPile> players, Deck deck, int seed) {
+    public void startGame(int numOfPlayers, Deck deck, int seed) {
         deck.shuffleDeck(seed);
-        gameProcessor.dealCards(deck, players);
+        dealCards(deck, playerHands);
 
-        while (!gameProcessor.emptyHands(players)) {
-            ArrayList<Card> drawnCards = gameProcessor.drawCards(players);
+        while (!playerHandler.findEmptyHand(playerHands)) {
+            ArrayList<Card> drawnCards = playerHandler.drawCards(playerHands);
             printCards(drawnCards);
             int warCheck = gameProcessor.checkWar(drawnCards);
             if (warCheck == WAR) {
                 System.out.println("\n***War!!***");
-                war(drawnCards, players, warPile);
+                war(drawnCards, warPile, playerHands);
             } else {
                 int winnigCardIndex = evaluate(drawnCards);
                 gameProcessor.printRoundWinner(winnigCardIndex);
-                addWinningCard(winnigCardIndex, players, drawnCards);
+                addWinningCard(winnigCardIndex, playerHands, drawnCards);
             }
             if (warPile != null)
                 warPile.clear();
-            gameProcessor.resetCardValues(players);
+            resetCardValues();
             System.out.println();
-            if (gameProcessor.emptyHands(players)) {
+            if (playerHandler.findEmptyHand(playerHands)) {
                 break;
             }
 
         }
-        endGame(players);
+        endGame();
     }
 
-    public int evaluate(ArrayList<Card> cards) {
-        int winningIndex = 0;
-        for (int i = 0; i < cards.size(); i++) {
-            if (cards.get(winningIndex).getCardValue() < cards.get(i).getCardValue()) {
-                winningIndex = i;
-            }
-        }
-        return winningIndex;
-    }
-
-    public void calculateScore(ArrayList<Player> players) {
-        for (Player player : players) {
-            player.setScore(player.getCardsWonPile().size());
+    public void initializePlayers(int numOfPlayers) {
+        PlayerPile player1 = new PlayerPile();
+        PlayerPile player2 = new PlayerPile();
+        PlayerPile player3 = new PlayerPile();
+        players.add(player1);
+        playerHands.add(player1.getPlayerHand());
+        players.add(player2);
+        playerHands.add(player2.getPlayerHand());
+        if (numOfPlayers == 3) {
+            players.add(player3);
+            playerHands.add(player3.getPlayerHand());
         }
     }
 
-    public void passWinnerCards(int winner, ArrayList<Player> players, ArrayList<Card> cards) {
-        for (Card currentCard : cards) {
-            players.get(winner).getCardsWonPile().add(currentCard);
-        }
-    }
-
-    public void addWinningCard(int winnigIndex, ArrayList<Player> players, ArrayList<Card> drawnCards) {
-        for (Card currentCard : drawnCards) {
-            players.get(winnigIndex).getCardsWonPile().add(currentCard);
-        }
-    }
-
-    public void endGame(ArrayList<Player> players) {
-        calculateScore(players);
+    public void endGame() {
+        playerHandler.calculateScore(players);
         int winnigIndex = 0;
         for (int i = 0; i < players.size(); i++) {
             if (players.get(i).getScore() > players.get(winnigIndex).getScore()) {
                 winnigIndex = i;
             }
             if (i != 0 && players.get(i).getScore() == players.get(winnigIndex).getScore()) {
-                if (checkForTie(players)) {
+                if (checkForTie()) {
                     System.out.println("There's a TIE!!");
                     printScores(players);
                 }
@@ -84,21 +74,32 @@ public class WarPointsPile implements War {
         printScores(players);
     }
 
-    public void dealCards(Deck deck, ArrayList<Player> players) {
-        int i = 0;
-        while (i < deck.getCards().size()) {
-            if (i == 51) {
-                players.get(PLAYER1).getPlayerHand().add(deck.getCards().get(i));
-                break;
-            }
-            players.get(PLAYER1).getPlayerHand().add(deck.getCards().get(i));
-            players.get(PLAYER2).getPlayerHand().add(deck.getCards().get(i + 1));
-            if (players.size() == 3) {
-                players.get(PLAYER3).getPlayerHand().add(deck.getCards().get(i + 2));
-                i += 3;
-            } else {
-                i += 2;
+    public void printScores(ArrayList<PlayerPile> players) {
+        for (int i = 1; i <= players.size(); i++) {
+            System.out.println("Player " + i + " has a score of " + players.get(i -
+                    1).getScore());
+        }
+    }
+
+    public void resetCardValues() {
+        for (PlayerPile player : players) {
+            for (Card card : player.getPlayerHand()) {
+                if (card.getCardValue() == 15) {
+                    card.setCardValue(2);
+                }
             }
         }
     }
+
+    public boolean checkForTie() {
+        for (PlayerPile winningPlayer : players) {
+            for (PlayerPile currentPlayer : players) {
+                if (currentPlayer.getScore() == winningPlayer.getScore()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
 }
