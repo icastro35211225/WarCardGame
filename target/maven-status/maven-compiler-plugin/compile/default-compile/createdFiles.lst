@@ -1,5 +1,4 @@
 warcardgame/game/War.class
-warcardgame/game/GameProcessor.class
 warcardgame/cards/Deck.class
 Main.class
 warcardgame/game/WarPointsPile.class
