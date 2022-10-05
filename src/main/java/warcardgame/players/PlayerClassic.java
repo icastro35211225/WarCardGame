@@ -7,6 +7,10 @@ public class PlayerClassic implements Player {
     private int score = 0;
     private ArrayList<Card> playerHand;
 
+    public PlayerClassic() {
+        playerHand = new ArrayList<Card>();
+    }
+
     public void setScore(int score) {
         this.score = score;
     }

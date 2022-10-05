@@ -11,12 +11,13 @@ public class WarClassics implements War {
     ArrayList<Card> warPile = new ArrayList<Card>();
     GameProcessor gameProcessor = new GameProcessor();
     ArrayList<ArrayList<Card>> playerHands = new ArrayList<ArrayList<Card>>();
-    PlayerClassic playerHandler = players.get(0);
+    PlayerClassic playerHandler;
 
     public void startGame(Deck deck, int seed, int maxRounds) {
+        initializePlayers();
         deck.shuffleDeck(seed);
         dealCards(deck, playerHands);
-
+        playerHandler = players.get(0);
         int round = 1;
         while (round <= maxRounds) {
             if (playerHandler.findEmptyHand(playerHands)) {
@@ -48,18 +49,24 @@ public class WarClassics implements War {
         endGame();
     }
 
+    public void initializePlayers() {
+        PlayerClassic player1 = new PlayerClassic();
+        PlayerClassic player2 = new PlayerClassic();
+        players.add(player1);
+        playerHands.add(player1.getPlayerHand());
+        players.add(player2);
+        playerHands.add(player2.getPlayerHand());
+    }
+
     public void endGame() {
         playerHandler.calculateScore(players);
         int winnigIndex = 0;
-        for (int i = 0; i < players.size(); i++) {
+        for (int i = 1; i < players.size(); i++) {
             if (players.get(i).getScore() > players.get(winnigIndex).getScore()) {
                 winnigIndex = i;
-            }
-            if (i != 0 && players.get(i).getScore() == players.get(winnigIndex).getScore()) {
-                if (checkForTie()) {
-                    System.out.println("There's a TIE!!");
-                    printScores(players);
-                }
+            } else if (players.get(i).getScore() == players.get(winnigIndex).getScore()) {
+                System.out.println("There's a TIE!!");
+                printScores(players);
                 return;
             }
         }
