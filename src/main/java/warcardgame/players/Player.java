@@ -34,7 +34,9 @@ public interface Player {
     public default ArrayList<Card> drawCards(ArrayList<ArrayList<Card>> playerHands) {
         ArrayList<Card> drawnCards = new ArrayList<Card>();
         for (ArrayList<Card> currHand : playerHands) {
-            drawnCards.add(drawCard(currHand));
+            Card newCard = drawCard(currHand);
+            if (newCard != null || !currHand.isEmpty())
+                drawnCards.add(newCard);
         }
         return drawnCards;
     }

@@ -21,6 +21,10 @@ public class PlayerPile implements Player {
         this.cardPile = cardPile;
     }
 
+    public void setPlayerHand(ArrayList<Card> playerHand) {
+        this.playerHand = playerHand;
+    }
+
     public int getScore() {
         return score;
     }

@@ -9,7 +9,6 @@ import java.util.ArrayList;
 public class WarClassics implements War {
     ArrayList<PlayerClassic> players = new ArrayList<PlayerClassic>();
     ArrayList<Card> warPile = new ArrayList<Card>();
-    GameProcessor gameProcessor = new GameProcessor();
     ArrayList<ArrayList<Card>> playerHands = new ArrayList<ArrayList<Card>>();
     PlayerClassic playerHandler;
 
@@ -27,14 +26,14 @@ public class WarClassics implements War {
             System.out.println("***Round " + round + "***");
             ArrayList<Card> drawnCards = playerHandler.drawCards(playerHands);
             printCards(drawnCards);
-            int warCheck = gameProcessor.checkWar(drawnCards);
+            int warCheck = checkWar(drawnCards);
             if (warCheck == WAR) {
                 System.out.println("\n***War!!***");
                 war(drawnCards, warPile, playerHands);
             } else {
                 int winnigCardIndex = evaluate(drawnCards);
-                gameProcessor.printRoundWinner(winnigCardIndex);
-                addWinningCard(winnigCardIndex, playerHands, drawnCards);
+                printRoundWinner(winnigCardIndex);
+                passWinnerCards(winnigCardIndex, playerHands, drawnCards);
             }
             if (warPile != null)
                 warPile.clear();
@@ -101,4 +100,5 @@ public class WarClassics implements War {
         }
         return false;
     }
+
 }

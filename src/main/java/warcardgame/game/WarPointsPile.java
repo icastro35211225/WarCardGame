@@ -8,7 +8,6 @@ import java.util.ArrayList;
 public class WarPointsPile implements War {
     ArrayList<PlayerPile> players = new ArrayList<PlayerPile>();
     ArrayList<Card> warPile = new ArrayList<Card>();
-    GameProcessor gameProcessor = new GameProcessor();
     ArrayList<ArrayList<Card>> playerHands = new ArrayList<ArrayList<Card>>();
     PlayerPile playerHandler;
 
@@ -20,13 +19,16 @@ public class WarPointsPile implements War {
         while (!playerHandler.findEmptyHand(playerHands)) {
             ArrayList<Card> drawnCards = playerHandler.drawCards(playerHands);
             printCards(drawnCards);
-            int warCheck = gameProcessor.checkWar(drawnCards);
+            int warCheck = checkWar(drawnCards);
             if (warCheck == WAR) {
                 System.out.println("\n***War!!***");
                 war(drawnCards, warPile, playerHands);
+            } else if (warCheck == -1) {
+                endGame();
+                break;
             } else {
                 int winnigCardIndex = evaluate(drawnCards);
-                gameProcessor.printRoundWinner(winnigCardIndex);
+                printRoundWinner(winnigCardIndex);
                 addWinningPile(winnigCardIndex, drawnCards);
             }
             if (warPile != null)
@@ -90,8 +92,32 @@ public class WarPointsPile implements War {
 
     public void addWinningPile(int winnigIndex, ArrayList<Card> drawnCards) {
         for (Card curCard : drawnCards) {
-            players.get(winnigIndex).getCardPile().add(curCard);
+            if (!players.get(winnigIndex).getCardPile().contains(curCard)) {
+                players.get(winnigIndex).getCardPile().add(curCard);
+            }
         }
     }
 
+    public int war(ArrayList<Card> cards, ArrayList<Card> warPile, ArrayList<ArrayList<Card>> playerHands) {
+        PlayerPile playerHandler = new PlayerPile();
+        printCards(cards);
+        int winner;
+
+        if (checkWar(cards) == WAR) {
+            warPile.addAll(playerHandler.drawCards(playerHands));
+            drawnCardsToWarPile(warPile, cards);
+            cards = playerHandler.drawCards(playerHands);
+            System.out.println("\n***War!!***");
+            winner = war(cards, warPile, playerHands);
+            warPile.addAll(cards);
+            addWinningPile(winner, warPile);
+            return winner;
+        }
+
+        winner = evaluate(cards);
+        warPile.addAll(cards);
+        printRoundWinner(winner);
+        addWinningPile(winner, warPile);
+        return winner;
+    }
 }
